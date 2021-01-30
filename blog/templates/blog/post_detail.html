@@ -1,0 +1,46 @@
+{% extends 'blog/base.html' %}
+
+{% block content %}
+    <div class="posts">
+
+        {% if user.is_authenticated %}
+            {% if post.published_date %}
+                <span class="date">Published: {{ post.published_date }}</span>
+            {% else %}
+                <span class="date">Created: {{ post.created_date }}</span>
+                <h2><a href="{% url 'post_publish' pk=post.pk %}"><strong>Publish Post</strong></a></h2>
+            {% endif %}
+                <h2><a href="{% url 'post_remove' pk=post.pk %}"><strong>Delete Post</strong></a></h2>
+                <a href="{% url 'post_edit' pk=post.pk %}"><h2>Edit post</h2></a>
+        {% else %}
+            <span class="date">Published: {{ post.published_date }}</span>
+        {% endif %}
+
+
+        <div class="post">
+            <h2 class="post-title">{{ post.title }}</h2>
+            <p class="post-text">{{ post.text|linebreaksbr }}</p>
+        </div>
+
+        <div class="comments">
+            <h2>Comments:</h2>
+            {% for comment in post.comments.all %}
+                <div class="comments">
+                    {% if user.is_authenticated or comment.approved_comment %}
+                        {{ comment.created_date }}
+                        {% if not comment.approved_comment %}
+                            <a href="{% url 'comment_approve' pk=comment.pk %}"><button class="button">Approve</button></a>
+                            <a href="{% url 'comment_remove' pk=comment.pk %}"><button class="button">Delete</button></a>
+                        {% endif %}
+                    {% endif %}
+                    <p>{{ comment.author }}</p>
+                    <p>{{ comment.text }}</p>
+                </div>
+            {% empty %}
+                <p>No comments here yet. Be first!</p>
+            {% endfor %}
+            <h4><a href="{% url 'add_comment_to_blog' pk=post.pk %}">Add comment</a></h4>
+        </div>
+    </div>
+
+{% endblock %}
